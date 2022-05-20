@@ -1,0 +1,34 @@
+Kinematics:
+
+- Angle axis forward and ivnerse problem
+- Euler angles inverse problem
+
+- 3R manipulator IK
+
+
+Trajectory generation:
+
+- Cubic splines
+- Linear and parabolic interpolation
+
+
+Velocity and Acceleration:
+
+- Jacobian
+- Velocity propagation in same frame
+- Velocity proagation in new frame
+- Acceleration propagation in same frame
+- Acceleration propagation in new frame
+
+
+Dynamics:
+
+- Euler-Lagrange dynamics
+- Newton-Euler Dynamics
+
+
+
+Verify:
+- Assignment 1, 2, 3 Mathematica files
+- Lab 1 FK and IK
+- Lab 3 cubic spliens
