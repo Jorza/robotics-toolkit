@@ -65,6 +65,15 @@ def translation(transform):
     return transform[:3, 3]
 
 
+def cross_matrix(vector):
+    x, y, z = vector
+    return sp.Matrix([
+        [0, -z,  y],
+        [z,  0, -x],
+        [-y, x,  0]
+    ])
+
+
 def inverse_transform(transform):
     rot = rotation(transform)
     inverse = sp.eye(4)
