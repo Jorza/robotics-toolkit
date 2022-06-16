@@ -25,6 +25,7 @@ Dynamics:
 
 - Euler-Lagrange dynamics
 - Newton-Euler Dynamics
+- Newton-Euler test examples
 
 
 
