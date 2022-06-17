@@ -12,11 +12,6 @@ Trajectory generation:
 - Linear and parabolic interpolation
 
 
-Velocity and Acceleration:
-
-- Jacobian
-
-
 Dynamics:
 
 - Euler-Lagrange dynamics
