@@ -52,8 +52,8 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
     force_link = [sp.zeros(3,1) for _ in range(num_frames)]
     moment_link = [sp.zeros(3,1) for _ in range(num_frames)]
 
-    # Define the output list of equations
-    equations = sp.zeros(num_frames - 1, 1)
+    # Define the output list of joint generalised forces
+    joint_force = sp.zeros(num_frames - 1, 1)
 
     # Set boundary conditions
     accel[0] = sp.Matrix(-gravity)
@@ -76,6 +76,6 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
 
         # Get the generalised joint-space force, construct the output equation
         force = moment_link[i] if joint_types[i] == 'R' else force_link[i]
-        equations[i] = sp.collect(sp.expand(force.dot(z_vec)), [*theta_accel, *d_accel])
-    
-    return equations
+        joint_force[i] = sp.collect(sp.expand(force.dor(z_vec)), [*theta_accel, *d_accel])
+
+    return joint_force
