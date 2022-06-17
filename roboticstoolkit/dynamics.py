@@ -76,6 +76,6 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
 
         # Get the generalised joint-space force, construct the output equation
         force = moment_link[i] if joint_types[i] == 'R' else force_link[i]
-        joint_force[i] = sp.collect(sp.expand(force.dor(z_vec)), [*theta_accel, *d_accel])
+        joint_force[i] = sp.collect(sp.expand(force.dot(z_vec)), [*theta_accel, *d_accel])
 
     return joint_force
