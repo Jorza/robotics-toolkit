@@ -20,7 +20,7 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
         f_end_effector - 3-vector. Force applied by end effector to the environment, in frame of end effector.
         n_end_effector - 3-vector. Moment applied by end effector to the environment, in frame of end effector.
     Return:
-        List of symbolic equations
+        Dictionary of symbolic equations
     """
 
     # Unpack transformation matrices
@@ -30,10 +30,11 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
     num_frames = len(transforms) + 1
     
     # Define joint-space symbolic variables for all frames
-    theta_vel = sp.zeros(num_frames - 1, 1)
-    theta_accel = sp.zeros(num_frames - 1, 1)
-    d_vel = sp.zeros(num_frames - 1, 1)
-    d_accel = sp.zeros(num_frames - 1, 1)
+    # Use lists (as opposed to sympy matrices) since these are always accessed individually
+    theta_vel = [0] * (num_frames - 1)
+    theta_accel = [0] * (num_frames - 1)
+    d_vel = [0] * (num_frames - 1)
+    d_accel = [0] * (num_frames - 1)
     for i in range(len(joint_types)):
         if joint_types[i] == 'R':
             theta_vel[i] = sp.symbols(f'theta_vel{i}')
@@ -53,7 +54,7 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
     moment_link = [sp.zeros(3,1) for _ in range(num_frames)]
 
     # Define the output list of joint generalised forces
-    joint_force = sp.zeros(num_frames - 1, 1)
+    joint_force = [0] * (num_frames - 1)
 
     # Set boundary conditions
     accel[0] = sp.Matrix(-gravity)
@@ -78,4 +79,41 @@ def equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravi
         force = moment_link[i] if joint_types[i] == 'R' else force_link[i]
         joint_force[i] = sp.collect(sp.expand(force.dot(z_vec)), [*theta_accel, *d_accel])
 
-    return joint_force
+    # Construct dictionary of equations
+    return {
+        'joint_force': joint_force,
+        'omega': omega,
+        'alpha': alpha,
+        'accel': accel,
+        'accel_com': accel_com,
+        'force_com': force_com,
+        'moment_com': moment_com,
+        'force_link': force_link,
+        'moment_link': moment_link
+    }
+
+
+def print_equations_dict(equations_dict, keys=None):
+    """
+    Print equations from a dictionary
+
+    Args:
+        equation_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Is printed as 'symbolic_name == expression'.
+            Each expression can be a single expression or a list of expressions.
+            If it is a list, the entries will be printed as separate equations.
+        keys - A list of keys (symbolic names) to print. If omitted, all equations are printed
+    """
+
+    # Print all equations by default
+    if keys is None:
+        keys = equations_dict.keys()
+    
+    # Print each of the given equations
+    for name in keys:
+        equations = equations_dict[name]
+        if isinstance(equations, list):
+            for i, eq in enumerate(equations):
+                print(f'{name}{i} == {eq}')
+        else:
+            print(f'{name} == {equations}')

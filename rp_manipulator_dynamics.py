@@ -42,13 +42,15 @@ def main():
     f_end_effector = sp.zeros(3, 1)
     n_end_effector = sp.zeros(3, 1)
 
-    # Solve the inverse dynamics
+    # Solve the inverse dynamics, print the equations
     equations = rtk.equations_of_motion(transforms, p_coms, masses, inertias, joint_types, gravity, f_end_effector, n_end_effector)
 
-    # Print the equations
-    for i, eq in enumerate(equations):
-        force_string = 'torque' if joint_types[i] == 'R' else 'force'
-        print(f'{force_string}{i} == {eq}')
+    print('Joint forces only')
+    rtk.print_equations_dict(equations, ['joint_force'])
+
+    print('\nAll equations')
+    rtk.print_equations_dict(equations)
+
 
 if __name__ == '__main__':
     main()
