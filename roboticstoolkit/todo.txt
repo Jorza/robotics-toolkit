@@ -15,17 +15,11 @@ Trajectory generation:
 Velocity and Acceleration:
 
 - Jacobian
-- Velocity propagation in same frame
-- Velocity proagation in new frame
-- Acceleration propagation in same frame
-- Acceleration propagation in new frame
 
 
 Dynamics:
 
 - Euler-Lagrange dynamics
-- Newton-Euler Dynamics
-- Newton-Euler test examples
 
 
 
