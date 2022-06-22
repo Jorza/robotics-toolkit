@@ -1,4 +1,4 @@
-from roboticstoolkit.constants import z_vec
+from roboticstoolkit.core import z_vec
 
 
 # Propagation equations
