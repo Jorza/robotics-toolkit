@@ -92,3 +92,11 @@ def cross_matrix(vector):
         [z,  0, -x],
         [-y, x,  0]
     ])
+
+
+def three_vector(vector):
+    return sp.Matrix(vector[:3])
+
+
+def four_vector(vector):
+    return vector.row_insert(3, sp.Matrix([1]))
