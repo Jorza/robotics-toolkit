@@ -12,11 +12,6 @@ Trajectory generation:
 - Linear and parabolic interpolation
 
 
-Dynamics:
-
-- Euler-Lagrange dynamics
-
-
 
 Verify:
 - Assignment 1, 2, 3 Mathematica files
