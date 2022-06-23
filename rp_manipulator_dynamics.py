@@ -44,7 +44,7 @@ def main():
     f_end_effector = sp.zeros(3, 1)
     n_end_effector = sp.zeros(3, 1)
 
-    # Define symbols for the variables and derivative (for Lagrange)
+    # Define symbols for the variables (for Lagrange)
     variables = theta1, d2
 
     # Solve the inverse dynamics, print the equations

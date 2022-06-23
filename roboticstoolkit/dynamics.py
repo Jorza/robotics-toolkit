@@ -34,10 +34,10 @@ def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, g
     
     # Define joint-space symbolic variables for all frames
     # Use lists (as opposed to sympy matrices) since these are always accessed individually
-    theta_vel = [0] * (num_frames - 1)
-    theta_accel = [0] * (num_frames - 1)
-    d_vel = [0] * (num_frames - 1)
-    d_accel = [0] * (num_frames - 1)
+    theta_vel = [sp.S(0)] * (num_frames - 1)
+    theta_accel = [sp.S(0)] * (num_frames - 1)
+    d_vel = [sp.S(0)] * (num_frames - 1)
+    d_accel = [sp.S(0)] * (num_frames - 1)
     for i in range(len(joint_types)):
         if joint_types[i] == 'R':
             theta_vel[i] = sp.symbols(f'\dot{{\\theta_{i}}}')
@@ -57,7 +57,7 @@ def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, g
     moment_link = [sp.zeros(3,1) for _ in range(num_frames)]
 
     # Define the output list of joint generalised forces
-    joint_force = [0] * (num_frames - 1)
+    joint_force = [sp.S(0)] * (num_frames - 1)
 
     # Set boundary conditions
     accel[0] = sp.Matrix(-gravity)
@@ -151,8 +151,8 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
         omega[i] = sp.simplify(omega_next_frame(rotations[i-1], omega[i-1], theta_vel[i]))
 
     # Find kinetic and potential energies
-    kinetic_energies = [0] * (num_frames - 1)
-    potential_energies = [0] * (num_frames - 1)
+    kinetic_energies = [sp.S(0)] * (num_frames - 1)
+    potential_energies = [sp.S(0)] * (num_frames - 1)
     for i in range(1, num_frames - 1):
         kinetic_energies[i] = sp.S(1)/2 * masses[i] * vel_com_ground[i].dot(vel_com_ground[i]) + sp.S(1)/2 * omega[i].dot(inertias[i] * omega[i])
         potential_energies[i] = -masses[i] * gravity.dot(pos_com_ground[i])
@@ -163,7 +163,7 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
     lagrangian = kinetic_energy_total - potential_energy_total
 
     # Apply the Euler-Lagrange equation to find the equations of motion
-    joint_force = [0] * (num_frames - 1)
+    joint_force = [sp.S(0)] * (num_frames - 1)
     for i in range(1, num_frames - 1):
         force = diff_total(lagrangian.diff(variables_vel[i-1]), t, diff_map) - lagrangian.diff(variables[i-1])
         joint_force[i] = sp.collect(sp.expand(force), [*variables_accel])

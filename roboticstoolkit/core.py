@@ -1,4 +1,5 @@
 import sympy as sp
+import copy
 
 # Define some handy constants
 x_vec = sp.Matrix([1, 0, 0])
@@ -59,7 +60,7 @@ def print_equations_dict(equations_dict, keys=None, latex=False):
     Print equations from a dictionary
 
     Args:
-        equation_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
             Is printed as 'symbolic_name == expression'.
             Each expression can be a single expression or a list of expressions.
             If it is a list, the entries will be printed as separate equations.
@@ -78,4 +79,79 @@ def print_equations_dict(equations_dict, keys=None, latex=False):
             for i in range(len(equations)):
                 print_equation(variables[i], equations[i], latex=latex)
         else:
-            print_equation(name, equations, latex=latex)
+            print_equation(sp.symbols(f'{name}'), equations, latex=latex)
+
+
+def substitute_equations_dict(equations_dict, subs_map):
+    """
+    Substitute into all equations in a dictionary
+
+    Args:
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Each expression can be a single expression or a list of expressions.
+        subs_map - A dictionary of substitutions, as you would use for expr.subs(subs_map)
+    Return:
+        An equation dict with all values substituted
+    """
+
+    # Generate output dict that is different from the input one
+    equations_dict = copy.deepcopy(equations_dict)
+
+    # Substitute each of the given equations
+    for name, equations in equations_dict.items():
+        if isinstance(equations, list):
+            equations_dict[name] = [eq.subs(subs_map) for eq in equations]
+        else:
+            equations_dict[name] = equations_dict[name].subs(subs_map)
+
+    return equations_dict
+
+
+def free_symbols_equations_dict(equations_dict):
+    """
+    Get all free symbols from a dictionary of equations
+
+    Args:
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Each expression can be a single expression or a list of expressions.
+    Return:
+        A set of free symbols
+    """
+
+    # Prepare the output dict
+    free_symbols = set()
+
+    # Get the symbols from each of the given equations
+    for name, equations in equations_dict.items():
+        if isinstance(equations, list):
+            for eq in equations:
+                free_symbols.update(eq.free_symbols)
+        else:
+            free_symbols.update(equations_dict[name].free_symbols)
+
+    return free_symbols
+
+
+def flatten_equations_dict(equations_dict):
+    """
+    Remove all lists from the equation dict, replace them with their own key entries
+
+    Args:
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Each expression can be a single expression or a list of expressions.
+    Return:
+        A flattened dictionary of equations
+    """
+
+    # Prepare the output dict
+    flat_dict = dict()
+
+    # Substitute each of the given equations
+    for name, equations in equations_dict.items():
+        if isinstance(equations, list):
+            for i, eq in enumerate(equations):
+                flat_dict[f'{name}{i}'] = eq
+        else:
+            flat_dict[name] = equations
+
+    return flat_dict
