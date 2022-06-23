@@ -45,12 +45,10 @@ def main():
 
     # Define symbols for the variables and derivative (for Lagrange)
     variables = theta1, theta2
-    first_derivs = sp.symbols('theta_vel1, theta_vel2')
-    second_derivs = sp.symbols('theta_accel1, theta_accel2')
 
     # Solve the inverse dynamics, print the equations
     equations_newton_euler = rtk.dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, gravity, f_end_effector, n_end_effector)
-    equations_lagrange = rtk.dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravity, variables, first_derivs, second_derivs)
+    equations_lagrange = rtk.dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravity, variables)
     
     print('Joint forces only')
     print('Newton-Euler')

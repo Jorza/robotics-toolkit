@@ -40,11 +40,11 @@ def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, g
     d_accel = [0] * (num_frames - 1)
     for i in range(len(joint_types)):
         if joint_types[i] == 'R':
-            theta_vel[i] = sp.symbols(f'theta_vel{i}')
-            theta_accel[i] = sp.symbols(f'theta_accel{i}')
+            theta_vel[i] = sp.symbols(f'\dot{{\\theta_{i}}}')
+            theta_accel[i] = sp.symbols(f'\ddot{{\\theta_{i}}}')
         elif joint_types[i] == 'P':
-            d_vel[i] = sp.symbols(f'd_vel{i}')
-            d_accel[i] = sp.symbols(f'd_accel{i}')
+            d_vel[i] = sp.symbols(f'\dot{{d_{i}}}')
+            d_accel[i] = sp.symbols(f'\ddot{{d_{i}}}')
     
     # Define task-space vectors for all frames
     omega = [sp.zeros(3,1) for _ in range(num_frames - 1)]
@@ -96,7 +96,7 @@ def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, g
     }
 
 
-def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravity, variables, first_derivs, second_derivs):
+def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravity, variables):
     """
     Compute the equations of motion of a serial manipulator.
     
@@ -111,17 +111,26 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
         joint_types - List with 0 for the ground frame, then 'R' or 'P' for each joint depending on the joint type.
         gravity - 3-vector. Acceleration due to gravity.
         variables - List of symbols, representing the time-dependent generalised variables
-        first_derivs - List of symbols, first derivatives of variables (in the same order)
-        second_derivs - List of symbols, second derivatives of variables (in the same order)
     Return:
         Dictionary of symbolic equations
     """
 
     # Unpack transformation matrices
     rotations = [rotation(T) for T in transforms]
+
     # Construct mapping for symbolic derivatives
-    diff_map = {variables[i]:first_derivs[i] for i in range(len(variables))}
-    diff_map.update({first_derivs[i]:second_derivs[i] for i in range(len(variables))})
+    variables_vel = [0] * len(variables)
+    variables_accel = [0] *len(variables)
+    for i in range(1, len(joint_types)):
+        if joint_types[i] == 'R':
+            variables_vel[i - 1] = sp.symbols(f'\dot{{\\theta_{i}}}')
+            variables_accel[i - 1] = sp.symbols(f'\ddot{{\\theta_{i}}}')
+        else:
+            variables_vel[i - 1] = sp.symbols(f'\dot{{d_{i}}}')
+            variables_accel[i - 1] = sp.symbols(f'\ddot{{d_{i}}}')
+
+    diff_map = {variables[i]:variables_vel[i] for i in range(len(variables))}
+    diff_map.update({variables_vel[i]:variables_accel[i] for i in range(len(variables))})
 
     # Get number of frames. Includes base frame, all links, and end effector frame
     num_frames = len(transforms) + 1
@@ -137,7 +146,7 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
     
     # Find angular velocities of each link using propagation law
     omega = [sp.zeros(3,1) for _ in range(num_frames - 1)]
-    theta_vel = [sp.symbols(f'theta_vel{i}') if joint_types[i] == 'R' else 0 for i in range(len(joint_types))]
+    theta_vel = [sp.symbols(f'\dot{{\\theta_{i}}}') if joint_types[i] == 'R' else 0 for i in range(len(joint_types))]
     for i in range(1, num_frames - 1):
         omega[i] = sp.simplify(omega_next_frame(rotations[i-1], omega[i-1], theta_vel[i]))
 
@@ -156,8 +165,8 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
     # Apply the Euler-Lagrange equation to find the equations of motion
     joint_force = [0] * (num_frames - 1)
     for i in range(1, num_frames - 1):
-        force = diff_total(lagrangian.diff(first_derivs[i-1]), t, diff_map) - lagrangian.diff(variables[i-1])
-        joint_force[i] = sp.collect(sp.expand(force), [*second_derivs])
+        force = diff_total(lagrangian.diff(variables_vel[i-1]), t, diff_map) - lagrangian.diff(variables[i-1])
+        joint_force[i] = sp.collect(sp.expand(force), [*variables_accel])
 
     # Construct dictionary of equations
     return {
