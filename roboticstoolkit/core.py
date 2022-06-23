@@ -43,7 +43,18 @@ def diff_total(expr, diffby, diffmap):
     return finaldiff.subs({funcmap[v]:sp.Symbol(f'{v}') for v in diffmap})
 
 
-def print_equations_dict(equations_dict, keys=None):
+def print_latex(expr):
+    print(f'$${sp.latex(expr)}$$')
+
+
+def print_equation(left_expr, right_expr, latex=False):
+    if latex:
+        print(f'$${sp.latex(left_expr)} = {sp.latex(right_expr)}$$')
+    else:
+        print(f'{left_expr} == {right_expr}')
+
+
+def print_equations_dict(equations_dict, keys=None, latex=False):
     """
     Print equations from a dictionary
 
@@ -58,12 +69,13 @@ def print_equations_dict(equations_dict, keys=None):
     # Print all equations by default
     if keys is None:
         keys = equations_dict.keys()
-    
+
     # Print each of the given equations
     for name in keys:
         equations = equations_dict[name]
         if isinstance(equations, list):
-            for i, eq in enumerate(equations):
-                print(f'{name}{i} == {eq}')
+            variables = sp.symbols(f'{name}:{len(equations)}')
+            for i in range(len(equations)):
+                print_equation(variables[i], equations[i], latex=latex)
         else:
-            print(f'{name} == {equations}')
+            print_equation(name, equations, latex=latex)

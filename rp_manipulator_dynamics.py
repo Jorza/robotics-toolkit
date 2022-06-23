@@ -55,9 +55,9 @@ def main():
     
     print('Joint forces only')
     print('Newton-Euler')
-    rtk.print_equations_dict(equations_newton_euler, ['joint_force'])
+    rtk.print_equations_dict(equations_newton_euler, ['tau'])
     print('\nLagrange')
-    rtk.print_equations_dict(equations_lagrange, ['joint_force'])
+    rtk.print_equations_dict(equations_lagrange, ['tau'])
 
     print('\nAll equations')
     print('Newton-Euler')
@@ -66,8 +66,8 @@ def main():
     rtk.print_equations_dict(equations_lagrange)
 
     # Are the two formulations equal?
-    joint_force_newton_euler = equations_newton_euler['joint_force']
-    joint_force_lagrange = equations_lagrange['joint_force']
+    joint_force_newton_euler = equations_newton_euler['tau']
+    joint_force_lagrange = equations_lagrange['tau']
     print("\nAre the two formulations equal?")
     print(all((sp.simplify(joint_force_newton_euler[i] - joint_force_lagrange[i]) == 0 for i in range(len(joint_force_lagrange)))))
 

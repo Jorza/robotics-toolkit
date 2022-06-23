@@ -84,15 +84,15 @@ def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, g
 
     # Construct dictionary of equations
     return {
-        'joint_force': joint_force,
+        'tau': joint_force,
         'omega': omega,
         'alpha': alpha,
-        'accel': accel,
-        'accel_com': accel_com,
-        'force_com': force_com,
-        'moment_com': moment_com,
-        'force_link': force_link,
-        'moment_link': moment_link
+        'a': accel,
+        'a_c': accel_com,
+        'f_c': force_com,
+        'n_c': moment_com,
+        'f': force_link,
+        'n': moment_link
     }
 
 
@@ -161,13 +161,13 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
 
     # Construct dictionary of equations
     return {
-        'joint_force': joint_force,
-        'pos_com_ground': pos_com_ground,
-        'vel_com_ground': vel_com_ground,
+        'tau': joint_force,
+        'p_c': pos_com_ground,
+        'v_c': vel_com_ground,
         'omega': omega,
-        'kinetic_energies': kinetic_energies,
-        'potential_energies': potential_energies,
-        'kinetic_energy_total': kinetic_energy_total,
-        'potential_energy_total': potential_energy_total,
-        'lagrangian': lagrangian,
+        'K': kinetic_energies,
+        'V': potential_energies,
+        'K_total': kinetic_energy_total,
+        'V_total': potential_energy_total,
+        'L': lagrangian,
     }
