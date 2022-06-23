@@ -28,10 +28,6 @@ def rot_x(angle):
     ])
 
 
-def euler_ZYX(alpha, beta, gamma):
-    return rot_z(alpha) * rot_y(beta) * rot_x(gamma)
-
-
 def trans(x, y, z):
     return sp.Matrix([
         [1, 0, 0, x],

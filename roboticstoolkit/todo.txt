@@ -1,8 +1,5 @@
 Kinematics:
 
-- Angle axis forward and ivnerse problem
-- Euler angles inverse problem
-
 - 3R manipulator IK
 
 
