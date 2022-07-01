@@ -3,7 +3,6 @@ from roboticstoolkit.transforms import rotation, translation, three_vector, four
 from roboticstoolkit.propagations import *
 from roboticstoolkit.kinematics import base_transforms
 from roboticstoolkit.core import diff_total
-from functools import reduce
 
 
 def dynamics_newton_euler(transforms, pos_coms, masses, inertias, joint_types, gravity, f_end_effector, n_end_effector):
