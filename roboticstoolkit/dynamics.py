@@ -141,8 +141,8 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
     t = sp.symbols('t')
     base_transform_matrices = base_transforms(transforms)
     for i in range(1, num_frames - 1):
-        pos_com_ground[i] = three_vector(base_transform_matrices[i-1] * four_vector(pos_coms[i]))
-        vel_com_ground[i] = diff_total(pos_com_ground[i], t, diff_map)
+        pos_com_ground[i] = sp.simplify(three_vector(base_transform_matrices[i-1] * four_vector(pos_coms[i])))
+        vel_com_ground[i] = sp.simplify(diff_total(pos_com_ground[i], t, diff_map))
     
     # Find angular velocities of each link using propagation law
     omega = [sp.zeros(3,1) for _ in range(num_frames - 1)]
@@ -154,8 +154,8 @@ def dynamics_lagrange(transforms, pos_coms, masses, inertias, joint_types, gravi
     kinetic_energies = [sp.S(0)] * (num_frames - 1)
     potential_energies = [sp.S(0)] * (num_frames - 1)
     for i in range(1, num_frames - 1):
-        kinetic_energies[i] = sp.S(1)/2 * masses[i] * vel_com_ground[i].dot(vel_com_ground[i]) + sp.S(1)/2 * omega[i].dot(inertias[i] * omega[i])
-        potential_energies[i] = -masses[i] * gravity.dot(pos_com_ground[i])
+        kinetic_energies[i] = sp.simplify(sp.S(1)/2 * masses[i] * vel_com_ground[i].dot(vel_com_ground[i]) + sp.S(1)/2 * omega[i].dot(inertias[i] * omega[i]))
+        potential_energies[i] = sp.simplify(-masses[i] * gravity.dot(pos_com_ground[i]))
 
     # Find total kinetic and potential energies, find lagrangian
     kinetic_energy_total = sp.simplify(sum(kinetic_energies))
