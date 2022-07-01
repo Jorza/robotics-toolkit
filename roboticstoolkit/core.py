@@ -45,14 +45,65 @@ def diff_total(expr, diffby, diffmap):
 
 
 def print_latex(expr):
+    # Convert expression to symbol if needed
+    if isinstance(expr, str):
+        expr = sp.symbols(expr)
+    # Print as latex
     print(f'$${sp.latex(expr)}$$')
 
 
 def print_equation(left_expr, right_expr, latex=False):
+    # Convert expressions to symbols if needed
+    if isinstance(left_expr, str):
+        left_expr = sp.symbols(left_expr)
+    if isinstance(right_expr, str):
+        right_expr = sp.symbols(right_expr)
+
+    # Print the equation
     if latex:
         print(f'$${sp.latex(left_expr)} = {sp.latex(right_expr)}$$')
     else:
         print(f'{left_expr} == {right_expr}')
+
+
+def func_equations_dict(equations_dict, func, *args, output=True, keys=None, **kwargs):
+    """
+    Apply a function to all equations in a dictionary
+
+    Args:
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Each expression can be a single expression or a list of expressions.
+        func - A function to apply to each entry of the dict. Is called like func(name, equation, *args **kwargs).
+            The 'name' is the key where the equation is stored, or the concatenation of key + index if the equation is in a list.
+        args - Additional arguments for func
+        output - If set to False, then the function will not return anything.
+            Increases efficiency if no return needed.
+        keys - A list of keys to operate on. If omitted, all keys are operated on
+        kwargs - Additional keyword arguments for func
+    Return:
+        A new equation dict with the same structure as the original, with the outputs of func
+    """
+
+    if output:
+        # Generate output dict that is different from the input one
+        equations_dict = copy.deepcopy(equations_dict)
+
+    if keys is None:
+        # Operate on all equations by deafult
+        keys = equations_dict.keys()
+
+    for name in keys:
+        # Apply the given function to each of the equations
+        equations = equations_dict[name]
+        if isinstance(equations, list):
+            func_output = [func(f'{name}{i}', eq, *args, **kwargs) for i, eq in enumerate(equations)]
+        else:
+            func_output = func(name, equations_dict[name], *args, **kwargs)
+        if output:
+            equations_dict[name] = func_output
+
+    if output:
+        return equations_dict
 
 
 def print_equations_dict(equations_dict, keys=None, latex=False):
@@ -66,23 +117,10 @@ def print_equations_dict(equations_dict, keys=None, latex=False):
             If it is a list, the entries will be printed as separate equations.
         keys - A list of keys (symbolic names) to print. If omitted, all equations are printed
     """
-
-    # Print all equations by default
-    if keys is None:
-        keys = equations_dict.keys()
-
-    # Print each of the given equations
-    for name in keys:
-        equations = equations_dict[name]
-        if isinstance(equations, list):
-            variables = sp.symbols(f'{name}:{len(equations)}')
-            for i in range(len(equations)):
-                print_equation(variables[i], equations[i], latex=latex)
-        else:
-            print_equation(sp.symbols(f'{name}'), equations, latex=latex)
+    func_equations_dict(equations_dict, print_equation, output=False, keys=keys, latex=latex)
 
 
-def substitute_equations_dict(equations_dict, subs_map):
+def substitute_equations_dict(equations_dict, subs_map, keys=None):
     """
     Substitute into all equations in a dictionary
 
@@ -90,68 +128,40 @@ def substitute_equations_dict(equations_dict, subs_map):
         equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
             Each expression can be a single expression or a list of expressions.
         subs_map - A dictionary of substitutions, as you would use for expr.subs(subs_map)
+        keys - A list of keys to substitute. If omitted, all equations are substituted
     Return:
         An equation dict with all values substituted
     """
-
-    # Generate output dict that is different from the input one
-    equations_dict = copy.deepcopy(equations_dict)
-
-    # Substitute each of the given equations
-    for name, equations in equations_dict.items():
-        if isinstance(equations, list):
-            equations_dict[name] = [eq.subs(subs_map) for eq in equations]
-        else:
-            equations_dict[name] = equations_dict[name].subs(subs_map)
-
-    return equations_dict
+    return func_equations_dict(equations_dict, lambda _, eq: eq.subs(subs_map), keys=keys)
 
 
-def free_symbols_equations_dict(equations_dict):
+def free_symbols_equations_dict(equations_dict, keys=None):
     """
     Get all free symbols from a dictionary of equations
 
     Args:
         equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
             Each expression can be a single expression or a list of expressions.
+        keys - A list of keys for equations to get the symbols from. If omitted, all free symbols are collected
     Return:
         A set of free symbols
     """
-
-    # Prepare the output dict
     free_symbols = set()
-
-    # Get the symbols from each of the given equations
-    for name, equations in equations_dict.items():
-        if isinstance(equations, list):
-            for eq in equations:
-                free_symbols.update(eq.free_symbols)
-        else:
-            free_symbols.update(equations_dict[name].free_symbols)
-
+    func_equations_dict(equations_dict, lambda _, eq: free_symbols.update(eq.free_symbols), output=False, keys=keys)
     return free_symbols
 
 
-def flatten_equations_dict(equations_dict):
+def flatten_equations_dict(equations_dict, keys=None):
     """
-    Remove all lists from the equation dict, replace them with their own key entries
+    Remove all lists from the equation dict, replace them with their own key entries.
 
     Args:
         equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
             Each expression can be a single expression or a list of expressions.
+        keys - A list of keys to put into the new flattened dict. If omitted, all equations are taken
     Return:
         A flattened dictionary of equations
     """
-
-    # Prepare the output dict
     flat_dict = dict()
-
-    # Substitute each of the given equations
-    for name, equations in equations_dict.items():
-        if isinstance(equations, list):
-            for i, eq in enumerate(equations):
-                flat_dict[f'{name}{i}'] = eq
-        else:
-            flat_dict[name] = equations
-
+    func_equations_dict(equations_dict, lambda name, eq: flat_dict.__setitem__(name, eq), output=False, keys=keys)
     return flat_dict
