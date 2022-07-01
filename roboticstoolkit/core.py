@@ -151,6 +151,21 @@ def free_symbols_equations_dict(equations_dict, keys=None):
     return free_symbols
 
 
+def round_equations_dict(equations_dict, num_sig_figs, keys=None):
+    """
+    Round all equations in a dictionary
+
+    Args:
+        equations_dict - A dictionary of equations. Has entries of the form 'symbolic_name': expression.
+            Each expression can be a single expression or a list of expressions.
+        num_sig_figs - Number of significant figures to round to, as you would use for sp.N(expr, num_sig_figs)
+        keys - A list of keys to round. If omitted, all equations are rounded
+    Return:
+        An equation dict with all values rounded
+    """
+    return func_equations_dict(equations_dict, lambda _, eq: sp.N(eq, num_sig_figs), keys=keys)
+
+
 def flatten_equations_dict(equations_dict, keys=None):
     """
     Remove all lists from the equation dict, replace them with their own key entries.
