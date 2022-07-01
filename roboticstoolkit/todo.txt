@@ -1,13 +1,7 @@
-Kinematics:
-
-- 3R manipulator IK
-
-
 Trajectory generation:
 
 - Cubic splines
 - Linear and parabolic interpolation
-
 
 
 Verify:

@@ -1,6 +1,7 @@
 import sympy as sp
 import copy
 
+
 # Define some handy constants
 x_vec = sp.Matrix([1, 0, 0])
 y_vec = sp.Matrix([0, 1, 0])
